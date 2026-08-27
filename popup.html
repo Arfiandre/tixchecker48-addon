@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tix48 · Exclusive</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="header">
+  <div class="header-brand">
+    <img src="icons/icon.svg" alt="Tix48" class="header-icon">
+    <div>
+      <h1 class="header-title">Tix48<span class="accent">·</span>Exclusive <span class="header-credit">by FJKT48SDA Creative Crew</span></h1>
+      <p class="header-sub" id="headerSub">v2.0 · Firefox Add-on</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-icon" id="miniModeBtn" title="Mini Mode">➖</button>
+    <button class="btn-icon" id="settingsBtn" title="Pengaturan">⚙️</button>
+    <button class="btn-icon" id="themeToggle" title="Ganti tema">🌙</button>
+  </div>
+</header>
+
+<!-- ── Input Section ── -->
+<section class="input-section">
+  <div class="input-row">
+    <div class="input-wrap">
+      <input type="text" class="code-input" id="codeInput"
+             placeholder="EX273E" maxlength="6" autocomplete="off" spellcheck="false">
+      <div class="code-hint" id="codeHint">Masukkan kode (contoh: EX1A2B)</div>
+    </div>
+    <button class="btn-primary" id="fetchBtn" disabled>Cari</button>
+  </div>
+  <!-- Search history -->
+  <div class="search-history" id="searchHistory" style="display:none"></div>
+</section>
+
+<!-- ── Status Messages ── -->
+<div class="status-msg" id="statusMsg"></div>
+<div class="stale-warning" id="staleWarning"></div>
+
+<!-- ── Info Card ── -->
+<div class="info-card" id="infoCard">
+  <img id="infoCover" src="" alt="" class="info-cover" style="display:none" onerror="this.style.display='none';document.getElementById('infoCoverPlaceholder').style.display='flex';">
+  <div id="infoCoverPlaceholder" class="info-cover-placeholder" style="display:none">🎫</div>
+  <div class="info-body">
+    <div class="info-header">
+      <div class="info-main">
+        <div class="info-title" id="infoTitle"></div>
+        <div class="info-meta">
+          <span id="infoCode"></span>
+          <span id="infoPrice"></span>
+          <span id="infoStatus"></span>
+          <button class="btn-calendar" id="calendarBtn" title="Download ke kalender">📅 Sync</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ── Table Section ── -->
+<section class="table-section" id="tableSection">
+  <div class="table-toolbar">
+    <input type="text" class="search-input" id="searchInput"
+           placeholder="🔍 Cari member..." autocomplete="off" spellcheck="false">
+    <div class="toggle-row">
+      <label class="toggle-switch" title="Sembunyikan jalur yang habis / kedaluwarsa">
+        <input type="checkbox" id="hideSoldOut">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label">Hidden Tix</span>
+    </div>
+    <button class="btn-refresh" id="refreshBtn" title="Refresh data (R)">↻</button>
+  </div>
+
+  <!-- Summary Bar -->
+  <div class="summary-bar" id="summaryBar" style="display:none">
+    <div class="summary-stat">📋 Total: <strong id="totalTickets">0</strong></div>
+    <div class="summary-stat">🎯 Sisa: <strong id="availTickets">0</strong></div>
+    <div class="summary-stat" id="expiredStat" style="display:none">⛔ Kedaluwarsa: <strong id="expiredTickets">0</strong></div>
+    <div class="summary-stat">📊 <strong id="availPct">0%</strong></div>
+    <div class="summary-progress"><span id="progressFill" style="width:0%"></span></div>
+  </div>
+
+  <!-- Revenue Stats -->
+  <div class="revenue-stats" id="revenueStats" style="display:none">
+    <div class="revenue-grid">
+      <div class="revenue-card">
+        <div class="revenue-label">💰 Estimasi Pendapatan</div>
+        <div class="revenue-value" id="revSold">Rp 0</div>
+        <div class="revenue-sub"><span id="revSoldCount">0</span> tiket terjual</div>
+      </div>
+      <div class="revenue-card">
+        <div class="revenue-label">📈 Potensi Tersisa</div>
+        <div class="revenue-value" id="revAvail">Rp 0</div>
+        <div class="revenue-sub"><span id="revAvailCount">0</span> tiket belum terjual</div>
+      </div>
+      <div class="revenue-card">
+        <div class="revenue-label">🎯 Target Maksimal</div>
+        <div class="revenue-value" id="revTotal">Rp 0</div>
+        <div class="revenue-sub">Jika semua tiket laku</div>
+      </div>
+      <div class="revenue-card">
+        <div class="revenue-label">📊 Sell-Through Rate</div>
+        <div class="revenue-value" id="revRate">0%</div>
+        <div class="revenue-sub">Tingkat penjualan</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date Quick-Jump -->
+  <div class="date-jump" id="dateJump" style="display:none"></div>
+
+  <!-- Table Content -->
+  <div class="table-scroll" id="tableContent"></div>
+</section>
+
+<!-- ── Transaction History ── -->
+<section class="history-section" id="historySection" style="display:none">
+  <div class="history-header">
+    <h3 class="history-title">📜 Riwayat Transaksi</h3>
+    <button class="btn-clear-history" id="clearHistoryBtn" title="Hapus riwayat">🗑️</button>
+  </div>
+  <div class="history-list" id="historyList"></div>
+</section>
+
+
+
+</section>
+
+<!-- ── Empty State ── -->
+<div class="empty-state" id="emptyState">
+  <div class="empty-icon">🎫</div>
+  <h3>Belum ada data</h3>
+  <p>Masukkan kode exclusive untuk mulai</p>
+  <p class="empty-hint">Atau ketik <strong>tix EX273E</strong> di address bar</p>
+</div>
+
+<!-- ── Settings Panel ── -->
+<div class="settings-overlay" id="settingsOverlay" style="display:none">
+  <div class="settings-panel">
+    <div class="settings-header">
+      <h2>⚙️ Pengaturan</h2>
+      <button class="btn-close" id="settingsClose">✕</button>
+    </div>
+    <div class="settings-body">
+      <div class="setting-group">
+        <label class="setting-label">Notifikasi</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingNotifications" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Threshold notifikasi (sisa ≤)</label>
+        <input type="number" class="setting-input" id="settingThreshold" value="5" min="1" max="50">
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Auto-refresh background</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingPeriodic" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Animasi</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingAnimations" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Tinggi kontras</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingHighContrast">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Lebar popup</label>
+        <select class="setting-select" id="settingWidth">
+          <option value="400">400px (Kompak)</option>
+          <option value="560" selected>560px (Normal)</option>
+          <option value="720">720px (Lebar)</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Zebra striping</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingZebra" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    <div class="settings-footer">
+      <button class="btn-reset" id="resetSettingsBtn">↩️ Reset ke Default</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <p>Data dari <a href="https://jkt48.com" target="_blank" rel="noopener">jkt48.com</a></p>
+  <p class="footer-hint">Gunakan <strong>↻ Refresh</strong> atau tekan <strong>R</strong> untuk data terbaru</p>
+  <p class="footer-credit">Brought to you by <strong>FJKT48SDA Creative Crew</strong></p>
+</footer>
+
+<!-- ── Toast Container ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>

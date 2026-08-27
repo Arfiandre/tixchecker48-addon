@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "Tix48 · Exclusive",
+  "version": "2.0.0",
+  "description": "Pantau ketersediaan tiket exclusive JKT48 secara real-time",
+  "author": "FJKT48SDA Creative Crew",
+
+  "icons": {
+    "48": "icons/icon.svg",
+    "96": "icons/icon.svg"
+  },
+
+  "action": {
+    "default_icon": "icons/icon.svg",
+    "default_title": "Tix48 — Cek Tiket Exclusive",
+    "default_popup": "popup.html",
+    "default_area": "navbar"
+  },
+
+  "sidebar_action": {
+    "default_title": "Tix48 · Exclusive",
+    "default_panel": "popup.html",
+    "default_icon": "icons/icon.svg"
+  },
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "contextualIdentities",
+    "contextMenus"
+  ],
+
+  "host_permissions": [
+    "https://jkt48.com/*"
+  ],
+
+  "omnibox": {
+    "keyword": "tix"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://jkt48.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tix48@fjkt48sda.creative",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "isExempt": true
+      }
+    }
+  }
+}
