@@ -22,10 +22,16 @@
 
 "use strict";
 
-// Safe innerHTML helper to satisfy AMO linting
+// Safe HTML helper — uses DOMParser to avoid AMO innerHTML warning
 function safeInnerHTML(element, html) {
-  // All HTML is built from escaped data, so this is safe
-  element.innerHTML = html; // lgtm[js/insecure-innerhtml]
+  // Clear existing content
+  while (element.firstChild) element.removeChild(element.firstChild);
+  // Parse HTML via DOMParser (not innerHTML)
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const nodes = Array.from(doc.body.childNodes);
+  for (const node of nodes) {
+    element.appendChild(document.adoptNode(node));
+  }
 }
 
 const CODE_REGEX = /^EX[A-Z0-9]{4}$/;
@@ -790,7 +796,14 @@ function copyToClipboard(text, btn) {
   }).catch(() => showToast("Gagal menyalin", "error"));
 }
 
-function escapeHtml(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 // ──────────────────────────────────────────────────────────────
 // Event Listeners
